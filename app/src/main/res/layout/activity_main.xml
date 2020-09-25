@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/mainbg"
+    android:onClick="convertCurrency"
+    android:padding="3dp"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="414dp"
+        android:layout_height="444dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/convertPrompt"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/gbp_dropdown"
+                style="@style/AppTheme.Spinner"
+                android:layout_width="106dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/rect_currency"
+                android:entries="@array/planets_array"
+                android:popupBackground="@drawable/dropdown_white"
+                android:scrollbars="vertical"
+                android:spinnerMode="dropdown"
+                android:splitMotionEvents="true"
+                android:textAlignment="center" />
+
+            <EditText
+                android:id="@+id/gbp_view"
+                android:layout_width="250dp"
+                android:layout_height="70dp"
+                android:background="@drawable/rect_amount"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="@string/enterHint"
+                android:imeOptions="actionGo"
+                android:inputType="numberDecimal"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/buttonContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:clickable="false"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardMaxElevation="5dp">
+
+                <ImageButton
+                    android:id="@+id/imageButton"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/convert_button"
+                    android:onClick="convertButtonPress"
+                    android:padding="15dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_arrowssvg" />
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/usd_dropdown2"
+                android:layout_width="106dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/rect_currency"
+                android:padding="5dp"
+                android:spinnerMode="dropdown"
+                android:splitMotionEvents="true" />
+
+            <EditText
+                android:id="@+id/usd_view"
+                android:layout_width="250dp"
+                android:layout_height="70dp"
+                android:background="@drawable/rect_amount"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="@string/enterBottomHint"
+                android:imeOptions="actionGo"
+                android:inputType="numberDecimal"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/conversion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/colorText"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
