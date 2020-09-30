@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -35,6 +36,14 @@ import androidx.cardview.widget.CardView;
 import static java.lang.Double.parseDouble;
 
 public class MainActivity extends AppCompatActivity {
+    Double conversionRate = 1.0;
+    Double conversionTop = 1.0;
+    Double conversionBot = 1.0;
+
+    ArrayList<String> errors = new ArrayList<String>();
+    Double convertedAmount = 1.0;
+    EditText focusedEditText = null;
+
     EditText gbpView;
     EditText usdView;
     CardView buttonContainer;
@@ -81,6 +90,32 @@ public class MainActivity extends AppCompatActivity {
             view.setOnFocusChangeListener(focusListener);
             view.setTag(0);
         }
+
+        convertCurrency();
+    }
+
+    public Double getConversionRate() {
+        return conversionRate;
+    }
+
+    public void setConversionRate(double conversionRate) {
+        this.conversionRate = conversionRate;
+    }
+
+    public Double getConversionTop() {
+        return conversionTop;
+    }
+
+    public void setConversionTop(double conversionTop) {
+        this.conversionTop = conversionTop;
+    }
+
+    public Double getConversionBot() {
+        return conversionBot;
+    }
+
+    public void setConversionBot(double conversionBot) {
+        this.conversionBot = conversionBot;
     }
 
     // Listen for focus change
@@ -126,16 +161,15 @@ public class MainActivity extends AppCompatActivity {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void afterTextChanged(Editable s) {
             // Change in the opposite view
             if (gbpView.hasFocus()) {
                 Log.i("info", "converting gbp...");
-                convertCurrency(usdView);
+                convertCurrency();
             } else if (usdView.hasFocus()) {
                 Log.i("info", "converting usd...");
-                convertCurrency(gbpView);
+                convertCurrency();
             }
         }
     };
@@ -151,66 +185,67 @@ public class MainActivity extends AppCompatActivity {
 
     // Make the go button do trigger conversion
     private TextView.OnEditorActionListener editorListener = new TextView.OnEditorActionListener() {
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
             switch (actionId) {
                 case EditorInfo
                         .IME_ACTION_GO:
-                    convertCurrency(textView);
+                    convertCurrency();
             }
             return false;
         }
     };
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void convertButtonPress(View view) {
-        convertCurrency(view);
+        convertCurrency();
         hideKeyboard(view);
+        removeShadow();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public void convertCurrency(View view) {
-        ArrayList<String> errors = new ArrayList<String>();
-        double conversionRate = 1.0;
-        EditText focusedEditText = null;
-
+    public void convertCurrency() {
         // Define conversion rate depending on focused editText
         if (gbpView.hasFocus()) {
             focusedEditText = gbpView;
-            conversionRate = 1.27343;
         } else if (usdView.hasFocus()) {
             focusedEditText = usdView;
-            conversionRate = 1 / 1.27343;
         }
 
-        // Check if field empty
-        if (focusedEditText.getText().toString().trim().equals("")) {
-            errors.add("No amount entered.");
-//            conversionView.setText("Error: " + errors.get(0));
-//            conversionView.setBackground(getDrawable(R.drawable.rect_error));
-            if (focusedEditText.equals(gbpView)) {
-                usdView.setText("Error: " + errors.get(0));
-            } else if (focusedEditText.equals(usdView)) {
-                gbpView.setText("Error: " + errors.get(0));
+        // If there is a focused field
+        if (focusedEditText != null) {
+            // Check if field empty
+            if (focusedEditText.getText().toString().trim().equals("")) {
+                errors.add("No amount entered.");
+                if (focusedEditText.equals(gbpView)) {
+                    usdView.setText("Error: " + errors.get(0));
+                } else if (focusedEditText.equals(usdView)) {
+                    gbpView.setText("Error: " + errors.get(0));
+                }
+                Log.i("info", "Error: No amount.");
+            } else {
+                double inputAmount = parseDouble(focusedEditText.getText().toString());
+                if (focusedEditText.equals(gbpView)) {
+                    convertedAmount = inputAmount * (getConversionBot() / getConversionTop());
+                    usdView.setText(formatNumber(2, convertedAmount));
+                } else if (focusedEditText.equals(usdView)) {
+                    convertedAmount = inputAmount * (getConversionTop() / getConversionBot());
+                    gbpView.setText(formatNumber(2, convertedAmount));
+                }
             }
-//            usdView.setBackground(getDrawable(R.drawable.rect_error));
-            Log.i("info", "Error: No amount.");
-        } else {
-            double inputAmount = parseDouble(focusedEditText.getText().toString());
-            double convertedAmount = inputAmount * conversionRate;
-            if (focusedEditText.equals(gbpView)) {
-                usdView.setText(formatNumber(2, convertedAmount));
-            } else if (focusedEditText.equals(usdView)) {
-                gbpView.setText(formatNumber(2, convertedAmount));
-            }
-//            conversionView.setText("£" + formatNumber(2, gbp) + " ⇄ " + "$" + formatNumber(2, convertedUSD));
-//            conversionView.setBackgroundColor(getColor(R.color.colorAccent));
-//            usdView.setText(formatNumber(2, convertedAmount));
-//            hideKeyboard(view);
         }
-
-        removeShadow();
+        // if focus is null
+        else {
+            // On startup do 1GBP to USD
+            if (gbpView.getText().toString().equals("") && usdView.getText().toString().equals("")) {
+//                gbpView.setText("1.00");
+//                convertedAmount = 1.00 * (getConversionBot() / getConversionTop());
+//                usdView.setText(formatNumber(2, convertedAmount));
+            }
+        }
+        if (errors.size() > 0) {
+            for (String error : errors) {
+                Log.i("errors", errors.get(errors.indexOf(error)));
+            }
+        }
     }
 
     /*Format money*/
@@ -222,8 +257,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return new DecimalFormat(sb.toString()).format(number);
     }
-
-
     /*Hides keyboard*/
     private void hideKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -243,8 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private class PullFromAPI extends AsyncTask<String, Void, String> {
-
-
         @Override
         protected String doInBackground(String... urls) {
             String result = "";
@@ -284,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                 String rateString = jsonObject.getString("rates");
 
                 // Logs
-                Log.i("CAD", ratesJSON.getString("CAD"));
                 Log.i("Rate info", rateString);
 
                 // Loop through JSON
@@ -299,17 +329,55 @@ public class MainActivity extends AppCompatActivity {
                         rates.add(parseDouble(value));
 
                         // Adapter for resulting data
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, currencies);
+                        ArrayAdapter<String> arrayAdapterCurrency = new ArrayAdapter<String>(MainActivity.this, R.layout.spinner_item, currencies);
 
                         // Create onselectlistener
-
-
                         for (Spinner spinner : spinners) {
-                            // set adapter
-                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                            spinner.setAdapter(adapter);
-                        }
+                            String defaultCurrencyTop = "GBP";
+                            String defaultCurrencyBot = "USD";
+                            spinner.setAdapter(arrayAdapterCurrency);
+                            // If top spinner default to GBP
+                            if (spinner.equals(spinnerTop)) {
+                                spinner.setSelection(currencies.indexOf("GBP"));
+                                setConversionTop(rates.indexOf(currencies.indexOf("GBP")));
+                                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                    @Override
+                                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                        Log.i("selected top", adapterView.getItemAtPosition(i).toString());
+                                        // get corresponding rate at same position in list
+                                        setConversionTop(rates.get(i));
+                                        Log.i("ConversionTop", getConversionTop().toString());
+                                        convertCurrency();
+                                    }
 
+                                    @Override
+                                    public void onNothingSelected(AdapterView<?> adapterView) {
+                                        Log.i("selected top", "Nothing selected.");
+                                    }
+                                });
+                            }
+                            // If bottom spinner default to USD
+                            else {
+                                spinner.setSelection(currencies.indexOf("USD"));
+                                setConversionBot(rates.indexOf(currencies.indexOf("USD")));
+                                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                    @Override
+                                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                        Log.i("selected bot", adapterView.getItemAtPosition(i).toString());
+                                        // get corresponding rate at same position in list
+                                        setConversionBot(rates.get(i));
+                                        Log.i("ConversionBot", getConversionBot().toString());
+                                        convertCurrency();
+                                    }
+
+                                    @Override
+                                    public void onNothingSelected(AdapterView<?> adapterView) {
+                                        Log.i("selected top", "Nothing selected.");
+                                    }
+                                });
+                            }
+                            convertCurrency();
+                        }
 
 //                    Log.i("values", value.toString());
 

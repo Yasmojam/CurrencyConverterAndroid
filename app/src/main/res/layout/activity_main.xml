@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:background="@drawable/mainbg"
-    android:onClick="convertCurrency"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -59,6 +58,7 @@
 
             <EditText
                 android:id="@+id/gbp_view"
+                android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:autofillHints=""
@@ -129,10 +129,11 @@
                 android:id="@+id/usd_view"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:padding="5dp"
                 android:background="@drawable/rect_amount"
                 android:ems="10"
                 android:gravity="center"
-                android:hint="@string/enterBottomHint"
+                android:hint="@string/enterHint"
                 android:imeOptions="actionGo"
                 android:inputType="numberDecimal"
                 android:singleLine="true"
